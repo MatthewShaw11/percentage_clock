@@ -19,7 +19,7 @@ fn get_percent_and_percenties() -> (u8, u32)
     let perc = get_percentage_of_day() * 100_f64;
 
     let percentage: u8 = perc.trunc() as u8;
-    let percenties: u32 = (perc.fract() * 864_f64) as u32;
+    let percenties: u32 = (perc.fract() * 864_f64).round() as u32;
 
     (percentage, percenties)
 }

@@ -8,7 +8,7 @@ fn main() {
     loop {
         let time = percentage_clock::get_time();
         if last_time == time {
-            sleep(Duration::new(0,250_000_000));
+            sleep(Duration::new(0,100_000_000));
             continue;
         }
 
