@@ -1,6 +1,4 @@
 
-use std::ops::Rem;
-
 use chrono::{DateTime, Local, Timelike};
 
 fn seconds_from_midnight() -> u32
