@@ -26,5 +26,5 @@ fn get_percent_and_percenties() -> (u8, u32)
 
 pub fn get_time() -> String {
     let p = get_percent_and_percenties();
-    format!("{}:{}", p.0, p.1)
+    format!("{:0>2}:{:0>3}", p.0, p.1)
 }
