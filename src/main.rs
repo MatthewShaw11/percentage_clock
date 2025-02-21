@@ -17,12 +17,12 @@ fn main() {
             .trim()
             .to_ascii_lowercase();
 
-        if first_opt == "--clock"
+        if first_opt == "--run"
         {
             clock();
         }
         else {
-            println!("The only valid option you can provide is \"--clock\" to make this run as a continuously running clock synced with your computers time.");
+            println!("The only valid option you can provide is \"--run\" to make this run as a continuously running clock synced with your computers time.");
         }
     }
     else {
