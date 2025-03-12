@@ -1,7 +1,5 @@
 use std::{
-    thread::sleep, 
-    time::Duration, 
-    env
+    env, io::{stdout, Write}, thread::sleep, time::Duration
 };
 
 mod percentage_clock;
@@ -41,7 +39,10 @@ fn clock() {
             continue;
         }
 
+
         println!("{time}");  
+        stdout().flush().unwrap();
+
         last_time = time;  
     }
 }
