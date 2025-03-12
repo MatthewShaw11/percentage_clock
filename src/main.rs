@@ -1,27 +1,35 @@
 use std::{
-    env, io::{stdout, Write}, thread::sleep, time::Duration
+    io::{stdout, Write}, thread::sleep, time::Duration
 };
 
 mod percentage_clock;
+mod command_arguments;
 
 fn main() {
     
-    let args: Vec<String> = env::args().collect();
+    let args = command_arguments::CommandArgs::new();
     
-    if args.iter().count() > 1 {
-        let first_opt = args
-            .get(1)
-            .unwrap()
-            .trim()
-            .to_ascii_lowercase();
-
-        if first_opt == "--run"
-        {
-            clock();
+    if args.contains("--run") {
+        let review = args.get("--run").unwrap();
+        match review {
+            Some(run_option) => {
+                if run_option == "oneline" {
+                    clock(true);
+                } else {
+                    println!("Unknown option for run flag of \"{run_option}\"");
+                }
+            },
+            None => { 
+                clock(false); 
+            }
         }
-        else {
-            println!("The only valid option you can provide is \"--run\" to make this run as a continuously running clock synced with your computers time.");
-        }
+        
+    }
+    else if args.count() > 1
+    {
+        println!("Received unknown command");
+        println!("Known commands are \"--run\" to have a continiously running clock");
+        println!("  to have only a single line update in place you can specify \"--run oneline\"");
     }
     else {
         let time = percentage_clock::get_time();
@@ -30,7 +38,7 @@ fn main() {
 }
 
 
-fn clock() {
+fn clock(one_line: bool) {
     let mut last_time = String::new();
     loop {
         let time = percentage_clock::get_time();
@@ -39,10 +47,14 @@ fn clock() {
             continue;
         }
 
-
-        println!("{time}");  
+        if one_line
+        {
+            print!("\r{time}");
+        }
+        else {
+            println!("{time}");
+        }
         stdout().flush().unwrap();
-
         last_time = time;  
     }
 }
