@@ -28,7 +28,7 @@ fn main() {
     else if args.count() > 1
     {
         println!("Received unknown command");
-        println!("Known commands are \"--run\" to have a continiously running clock");
+        println!("Known commands are \"--run\" to have a continuously running clock");
         println!("  to have only a single line update in place you can specify \"--run oneline\"");
     }
     else {
