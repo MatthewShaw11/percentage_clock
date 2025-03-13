@@ -125,9 +125,7 @@ fn get_time_string(figlet_font_option: &Option<String>) -> String
                 
                 //add three spaces to the end of each newline
                 //so if we update the string in-place there wont be missing characters
-                let output = stdout
-                    .to_string()
-                    .replace('\n', "   \n");
+                let output = stdout.to_string();
                 output
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr);
