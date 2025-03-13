@@ -1,6 +1,7 @@
 use std::{
     io::{stdout, Write}, thread::sleep, time::Duration, process::Command, io
 };
+use std::time::Instant;
 
 mod percentage_clock;
 mod command_arguments;
@@ -49,13 +50,30 @@ fn main() {
 fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
     let mut last_time = String::new();
     let mut first_multi_print = true;
+    let mut sleep_time: u128 = 0;
+    let mut start = Instant::now();
+    
     loop {
         let time = get_time_string(figlet_font_option);
+        let elapsed: u128 = start.elapsed().as_millis();
+
         if last_time == time {
-            sleep(Duration::new(0,100_000_000)); //100 milliseconds
+
+            let time_left = 1_000 - elapsed;
+            sleep_time = (0.9 * time_left as f64) as u128;
+
+            if sleep_time < 50 {
+                sleep_time = 10;
+            }
+
+            //println!("Sleep time {sleep_time}");
+            let ten_milli_as_nano = 10_000_000; //10 milliseconds
+            let sleep_nano: u32 = (sleep_time * 1_000_000).try_into().unwrap_or(ten_milli_as_nano); 
+            sleep(Duration::new(0,sleep_nano)); 
+            
             continue;
         }
-
+        
         match figlet_font_option {
             None => {
                 match one_line {
@@ -87,7 +105,8 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
                 stdout().flush().unwrap();
             }
         }
-
+        //println!("elapsed: {elapsed}");
+        start = Instant::now();
         last_time = time;  
     }
 }
