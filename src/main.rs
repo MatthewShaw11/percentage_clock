@@ -112,6 +112,8 @@ fn get_time_string(figlet_font_option: &Option<String>) -> String
         }
         Some(font) => {
             let output = Command::new("figlet")
+                .arg("-w")
+                .arg("500")
                 .arg("-f")
                 .arg(font)
                 .arg(time_string)
