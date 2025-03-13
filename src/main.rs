@@ -1,5 +1,5 @@
 use std::{
-    io::{stdout, Write}, thread::sleep, time::Duration
+    default, io::{stdout, Write}, thread::sleep, time::Duration
 };
 
 mod percentage_clock;
@@ -13,10 +13,9 @@ fn main() {
         let review = args.get("--run").unwrap();
         match review {
             Some(run_option) => {
-                if run_option == "oneline" {
-                    clock(true);
-                } else {
-                    println!("Unknown option for run flag of \"{run_option}\"");
+                match run_option.as_str() {
+                    "oneline" => { clock(true); },
+                    _ => { println!("Unknown option for run flag of \"{run_option}\""); }
                 }
             },
             None => { 
