@@ -1,5 +1,5 @@
 use std::{
-    default, io::{stdout, Write}, thread::sleep, time::Duration
+    io::{stdout, Write}, thread::sleep, time::Duration
 };
 
 mod percentage_clock;
