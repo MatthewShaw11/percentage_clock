@@ -11,7 +11,7 @@ fn main() {
 
     let mut run_clock = false;
     let mut run_clock_in_one_line = false;
-    let mut toilet_font_option: Option<String> = None;
+    let mut figlet_font_option: Option<String> = None;
 
     let flag_full_run = "--run";
     if args.contains(flag_full_run) {
@@ -30,33 +30,33 @@ fn main() {
         }
     }
 
-    let flag_full_toilet_font = "--toilet";
-    if args.contains(flag_full_toilet_font) {
-        let value = args.get(flag_full_toilet_font).unwrap();
-        toilet_font_option = value;
+    let flag_full_figlet_font = "--figlet";
+    if args.contains(flag_full_figlet_font) {
+        let value = args.get(flag_full_figlet_font).unwrap();
+        figlet_font_option = value;
     }
 
 
     if run_clock == false {
-        println!("{}", get_time_string(&toilet_font_option));
+        println!("{}", get_time_string(&figlet_font_option));
     }
     else {
-        clock(&run_clock_in_one_line, &toilet_font_option);
+        clock(&run_clock_in_one_line, &figlet_font_option);
     }
 }
 
 
-fn clock(one_line: &bool, toilet_font_option: &Option<String>) {
+fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
     let mut last_time = String::new();
     let mut first_multi_print = true;
     loop {
-        let time = get_time_string(toilet_font_option);
+        let time = get_time_string(figlet_font_option);
         if last_time == time {
             sleep(Duration::new(0,100_000_000)); //100 milliseconds
             continue;
         }
 
-        match toilet_font_option {
+        match figlet_font_option {
             None => {
                 match one_line {
                     true => {
@@ -103,15 +103,15 @@ fn clear_multiline_output(output: &str) {
 }
 
 
-fn get_time_string(toilet_font_option: &Option<String>) -> String
+fn get_time_string(figlet_font_option: &Option<String>) -> String
 {
     let time_string = percentage_clock::get_time();
-    match toilet_font_option {
+    match figlet_font_option {
         None => {
             time_string
         }
         Some(font) => {
-            let output = Command::new("toilet")
+            let output = Command::new("figlet")
                 .arg("--font")
                 .arg(font)
                 .arg(time_string)
