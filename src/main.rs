@@ -1,5 +1,5 @@
 use std::{
-    io::{stdout, Write}, thread::sleep, time::Duration, process::Command, io
+    io::{self, stdout, Write}, process::Command, thread::sleep, time::Duration
 };
 use std::time::Instant;
 
@@ -50,7 +50,7 @@ fn main() {
 fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
     let mut last_time = String::new();
     let mut first_multi_print = true;
-    let mut sleep_time: u128 = 0;
+    let mut sleep_time: u128;
     let mut start = Instant::now();
     
     loop {
@@ -144,8 +144,46 @@ fn get_time_string(figlet_font_option: &Option<String>) -> String
                 
                 //add three spaces to the end of each newline
                 //so if we update the string in-place there wont be missing characters
-                let output = stdout.to_string();
-                output
+                let output = stdout.trim_end().to_string() + "\n";
+
+                let has_new_line = output.contains('\n');
+
+                if has_new_line {
+                    let s: &str = output.as_str();
+                    let index_of_first_not_whitespace = s.chars().zip(s.as_bytes().iter().enumerate()).find_map(|(c, (i, _b))| {
+                        if !c.is_whitespace() {
+                            Some(i)
+                        } else {
+                            None
+                        }
+                    });
+
+                    if index_of_first_not_whitespace == None {
+                        return output;
+                    }
+
+                    let index_of_first_not_whitespace = index_of_first_not_whitespace.unwrap();
+                    let early_whitespace: String = output[..index_of_first_not_whitespace].to_string();
+                    let start_of_output = early_whitespace.rfind('\n');
+
+                    if start_of_output == None {
+                        return output;
+                    }
+
+                    let start_of_output = start_of_output.unwrap(); 
+                    if start_of_output + 1 > output.chars().count() - 1 {
+                        return output;
+                    }
+
+                    let output= "\n".to_string() + &output[start_of_output+1..];
+
+                    output
+                }
+                else {
+                    //font is single line, just output
+                    output
+                }
+                
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 panic!("Command failed:\n{}", stderr);
