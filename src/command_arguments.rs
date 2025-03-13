@@ -73,9 +73,9 @@ impl CommandArgs {
         else { true }
     }
 
-    pub fn count(&self) -> usize {
-        self.collection.len()
-    }
+    // pub fn count(&self) -> usize {
+    //     self.collection.len()
+    // }
 }
 
 
