@@ -150,19 +150,19 @@ fn get_time_string(figlet_font_option: &Option<String>) -> String
 
                 if has_new_line {
                     let s: &str = output.as_str();
-                    let index_of_first_not_whitespace = s.chars().zip(s.as_bytes().iter().enumerate()).find_map(|(c, (i, _b))| {
-                        if !c.is_whitespace() {
-                            Some(i)
-                        } else {
-                            None
-                        }
-                    });
+
+                    let index_of_first_not_whitespace = 
+                        s.char_indices()
+                        .find(|&(_i, c)| 
+                        {
+                            !c.is_whitespace()
+                    }); 
 
                     if index_of_first_not_whitespace == None {
                         return output;
                     }
 
-                    let index_of_first_not_whitespace = index_of_first_not_whitespace.unwrap();
+                    let index_of_first_not_whitespace = index_of_first_not_whitespace.unwrap().0;
                     let early_whitespace: String = output[..index_of_first_not_whitespace].to_string();
                     let start_of_output = early_whitespace.rfind('\n');
 
