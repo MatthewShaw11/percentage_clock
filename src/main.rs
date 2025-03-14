@@ -163,19 +163,24 @@ fn get_time_string(figlet_font_option: &Option<String>) -> String
                     }
 
                     let index_of_first_not_whitespace = index_of_first_not_whitespace.unwrap().0;
-                    let early_whitespace: String = output[..index_of_first_not_whitespace].to_string();
-                    let start_of_output = early_whitespace.rfind('\n');
+                    let leading_whitespace: String = output[..index_of_first_not_whitespace].to_string();
+                    let last_newline_in_leading_whitespace = leading_whitespace.rfind('\n');
 
-                    if start_of_output == None {
+                    if last_newline_in_leading_whitespace == None {
+                        //no newlines in leading whitespace = no added lines
                         return output;
                     }
 
-                    let start_of_output = start_of_output.unwrap(); 
-                    if start_of_output + 1 > output.chars().count() - 1 {
+                    let index_of_start_of_first_real_line = last_newline_in_leading_whitespace.unwrap(); 
+                    if index_of_start_of_first_real_line + 1 > output.chars().count() - 1 {
+                        //if the index of the start of the first real line plus one
+                        // is outside the bounds of the array 
                         return output;
                     }
 
-                    let output= "\n".to_string() + &output[start_of_output+1..];
+                    //return output with a single newline character, then crop out all the leading whitespace
+                    //not apart of the first valid line
+                    let output= "\n".to_string() + &output[index_of_start_of_first_real_line+1..];
 
                     output
                 }
