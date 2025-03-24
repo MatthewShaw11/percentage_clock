@@ -14,6 +14,25 @@ fn main() {
     let mut run_clock_in_one_line = false;
     let mut figlet_font_option: Option<String> = None;
 
+    
+    let flag_full_help = "--help";
+    if args.contains(flag_full_help) {
+        println!("Percentage Clock");
+        println!("Outputs the time of day using your system time.");
+        println!("The time will be formatted [PercentOfDay]:[secondsUntilOnePercentGoesBy]");
+        println!("There are 86,400 seconds in a day so there are 864 seconds in one percent.");
+        println!("");
+        println!("Flags");
+        println!("  --run [option]");
+        println!("    Causes the program to output continiously until the you press Ctrl+C");
+        println!("    Options:");
+        println!("      oneline (updates the text in-place rather than outputting new text each second");
+        println!("  --figlet [figlet_font_here]");
+        println!("    outputs the time using the provided font using the figlet command.");
+        return;
+    }
+    
+    
     let flag_full_run = "--run";
     if args.contains(flag_full_run) {
         run_clock = true;
