@@ -58,7 +58,7 @@ fn main() {
 
 
     if run_clock == false {
-        println!("{}", get_time_string(&figlet_font_option));
+        println!("{}", pretty_print_time(&percentage_clock::get_time(), &figlet_font_option));
     }
     else {
         clock(&run_clock_in_one_line, &figlet_font_option);
@@ -68,66 +68,98 @@ fn main() {
 
 fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
     let mut last_time = String::new();
-    let mut first_multi_print = true;
     let mut sleep_time: u128;
     let mut start = Instant::now();
     
+    let start_time = percentage_clock::get_time();
+    clock_print_time(
+        one_line, 
+        figlet_font_option, 
+        &pretty_print_time(&start_time, figlet_font_option), 
+        &true
+    );
+
     loop {
-        let time = get_time_string(figlet_font_option);
+        let sync_time = percentage_clock::get_time();
+        if sync_time != start_time {
+            break;
+        }
+    }
+
+    loop {
+        let time = percentage_clock::get_time();
         let elapsed: u128 = start.elapsed().as_millis();
 
-        if last_time == time {
+        if last_time == time {  
+            //need to sleep, we got a result of a duplicate time
+            let time_left: i32 = 1_000 - elapsed as i32;
 
-            let time_left = 1_000 - elapsed;
+            if time_left <= 0 {
+                //more than a second has passed since loop began, restart to pull time again
+                continue;
+            }
+
             sleep_time = (0.9 * time_left as f64) as u128;
 
             if sleep_time < 50 {
                 sleep_time = 10;
             }
 
-            //println!("Sleep time {sleep_time}");
-            let ten_milli_as_nano = 10_000_000; //10 milliseconds
-            let sleep_nano: u32 = (sleep_time * 1_000_000).try_into().unwrap_or(ten_milli_as_nano); 
+            let sleep_nano: u128 = sleep_time * 1_000_000;
+            let sleep_nano: u32 = sleep_nano
+                                    .try_into()
+                                    .unwrap_or(10_000_000); //10 milliseconds
+
+            println!("sleep {sleep_nano} nano seconds");
+
             sleep(Duration::new(0,sleep_nano)); 
             
             continue;
-        }
         
-        match figlet_font_option {
-            None => {
-                match one_line {
-                    true => {
-                        print!("\r{time}");
-                    },
-                    false => {
-                        println!("{time}");
-                    }
-                }
-                stdout().flush().unwrap();
-            }
-            Some(_) => {
-                match one_line {
-                    true => {
-                        if first_multi_print 
-                        {
-                            first_multi_print = false;
-                        }
-                        else {
-                            clear_multiline_output(&time);    
-                        }
-                        print!("{time}");
-                    },
-                    false => {
-                        println!("{time}");
-                    }
-                }
-                stdout().flush().unwrap();
-            }
-        }
-        //println!("elapsed: {elapsed}");
+            //sleep(Duration::new(0,25_000_000)); //25 milliseconds 
+        } 
+        
+        //print the time
+        clock_print_time(
+            one_line, 
+            figlet_font_option, 
+            &pretty_print_time(&time, figlet_font_option), 
+            &false
+        );
         start = Instant::now();
-        last_time = time;  
+        last_time = time;
+
     }
+}
+
+fn clock_print_time(
+    one_line: &bool, 
+    figlet_font_option: &Option<String>, 
+    string_to_print: &String, 
+    clear_prior_console_text: &bool) 
+{
+    match figlet_font_option {
+        None => {
+            match one_line {
+                true => {
+                    print!("\r{string_to_print}");
+                },
+                false => {
+                    println!("{string_to_print}");
+                }
+            }
+            stdout().flush().unwrap();
+        }
+        Some(_) => {
+            if one_line == &true {
+                if clear_prior_console_text == &false {
+                    clear_multiline_output(&string_to_print);
+                }
+            }
+            println!("{string_to_print}");
+            stdout().flush().unwrap();
+        }
+    } 
 }
 
 
@@ -141,9 +173,9 @@ fn clear_multiline_output(output: &str) {
 }
 
 
-fn get_time_string(figlet_font_option: &Option<String>) -> String
+fn pretty_print_time(time_input: &String, figlet_font_option: &Option<String>) -> String
 {
-    let time_string = percentage_clock::get_time();
+    let time_string: String = time_input.to_string();
     match figlet_font_option {
         None => {
             time_string
