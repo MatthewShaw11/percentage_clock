@@ -76,7 +76,7 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
         one_line, 
         figlet_font_option, 
         &pretty_print_time(&start_time, figlet_font_option), 
-        &true
+        &false
     );
 
     loop {
@@ -118,7 +118,7 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
             one_line, 
             figlet_font_option, 
             &pretty_print_time(&time, figlet_font_option), 
-            &false
+            &true
         );
         start = Instant::now();
         last_time = time;
@@ -146,8 +146,8 @@ fn clock_print_time(
         }
         Some(_) => {
             if one_line == &true {
-                if clear_prior_console_text == &false {
-                    clear_multiline_output(&string_to_print);
+                if clear_prior_console_text == &true {
+                    wipe_number_of_lines_from_terminal(string_to_print.matches('\n').count() + 1);
                 }
             }
             println!("{string_to_print}");
@@ -157,10 +157,9 @@ fn clock_print_time(
 }
 
 
-fn clear_multiline_output(output: &str) {
-    let lines = output.matches('\n').count(); // Count number of newlines
-    if lines > 0 {
-        print!("\x1B[{}A", lines); // Move up X lines
+fn wipe_number_of_lines_from_terminal(number_of_lines_to_clear: usize) {
+    if number_of_lines_to_clear > 0 {
+        print!("\x1B[{}A", number_of_lines_to_clear); // Move up X lines
     }
     print!("\x1B[J"); // Clear everything below
     io::stdout().flush().unwrap();
