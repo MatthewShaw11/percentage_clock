@@ -100,7 +100,6 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
             }
 
             sleep_time = (0.9 * time_left as f64) as u128;
-
             if sleep_time < 50 {
                 sleep_time = 10;
             }
@@ -110,13 +109,8 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
                                     .try_into()
                                     .unwrap_or(10_000_000); //10 milliseconds
 
-            println!("sleep {sleep_nano} nano seconds");
-
             sleep(Duration::new(0,sleep_nano)); 
-            
             continue;
-        
-            //sleep(Duration::new(0,25_000_000)); //25 milliseconds 
         } 
         
         //print the time
