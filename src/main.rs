@@ -58,7 +58,7 @@ fn main() {
 
 
     if run_clock == false {
-        println!("{}", pretty_print_time(&percentage_clock::get_time(), &figlet_font_option));
+        println!("{}", &pretty_time_string(&percentage_clock::get_time(), &figlet_font_option));
     }
     else {
         clock(&run_clock_in_one_line, &figlet_font_option);
@@ -75,7 +75,7 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
     clock_print_time(
         one_line, 
         figlet_font_option, 
-        &pretty_print_time(&start_time, figlet_font_option), 
+        &pretty_time_string(&start_time, figlet_font_option), 
         &false
     );
 
@@ -117,7 +117,7 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
         clock_print_time(
             one_line, 
             figlet_font_option, 
-            &pretty_print_time(&time, figlet_font_option), 
+            &pretty_time_string(&time, figlet_font_option), 
             &true
         );
         start = Instant::now();
@@ -166,7 +166,7 @@ fn wipe_number_of_lines_from_terminal(number_of_lines_to_clear: usize) {
 }
 
 
-fn pretty_print_time(time_input: &String, figlet_font_option: &Option<String>) -> String
+fn pretty_time_string(time_input: &String, figlet_font_option: &Option<String>) -> String
 {
     let time_string: String = time_input.to_string();
     match figlet_font_option {
