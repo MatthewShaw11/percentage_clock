@@ -13,6 +13,8 @@ fn main() {
     let mut run_clock = false;
     let mut run_clock_in_one_line = false;
     let mut figlet_font_option: Option<String> = None;
+    let mut range_start_option: Option<String> = None;
+    let mut range_end_option: Option<String> = None;
 
     
     let flag_full_help = "--help";
@@ -26,9 +28,14 @@ fn main() {
         println!("  --run [option]");
         println!("    Causes the program to output continiously until the you press Ctrl+C");
         println!("    Options:");
-        println!("      oneline (updates the text in-place rather than outputting new text each second");
+        println!("      oneline");
+        println!("          Updates the text in-place rather than outputting new text each second");
         println!("  --figlet [figlet_font_here]");
-        println!("    outputs the time using the provided font using the figlet command.");
+        println!("      Outputs the time using the provided font using the figlet command.");
+        println!("  --rstart [start-time] ");
+        println!("      Modify clock range so that 0 is referenced off provided time instead of midnight");
+        println!("  --rend [end-time] ");
+        println!("      Modify clock range so that 100 is referenced off provided time instead of midnight");
         return;
     }
     
@@ -56,38 +63,77 @@ fn main() {
         figlet_font_option = value;
     }
 
+    let flag_full_range_start = "--rstart";
+    if args.contains(flag_full_range_start) {
+        let value = args.get(flag_full_range_start).unwrap();
+        range_start_option = value;
+
+    }
+
+    let flag_full_range_end = "--rend";
+    if args.contains(flag_full_range_end) {
+        let value = args.get(flag_full_range_end).unwrap();
+        range_end_option = value;
+    }
+
 
     if run_clock == false {
-        println!("{}", &pretty_time_string(&percentage_clock::get_time(), &figlet_font_option));
+        let input_time = percentage_clock::get_time_with_range(&range_start_option, &range_end_option)
+            .unwrap_or_else(|e| { panic!("Error trying to print the time using the provided ranges\n{e}") });
+        println!(
+            "{}", 
+            &pretty_time_string(
+                &input_time, 
+                &figlet_font_option 
+            )
+        );
     }
     else {
-        clock(&run_clock_in_one_line, &figlet_font_option);
+        clock(
+            &run_clock_in_one_line, 
+            &figlet_font_option,
+            &range_start_option, 
+            &range_end_option
+        );
     }
 }
 
 
-fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
+fn clock(
+    one_line: &bool, 
+    figlet_font_option: &Option<String>,
+    range_start_option: &Option<String>,
+    range_end_option: &Option<String>
+) {
     let mut last_time = String::new();
     let mut sleep_time: u128;
     let mut start = Instant::now();
     
-    let start_time = percentage_clock::get_time();
+    let start_time = percentage_clock::get_time_with_range(&range_start_option, &range_end_option)
+            .unwrap_or_else(|e| { panic!("Error trying to print the first instance of the time using the provided ranges\n{e}") });
+
     clock_print_time(
         one_line, 
         figlet_font_option, 
-        &pretty_time_string(&start_time, figlet_font_option), 
+        &pretty_time_string(
+            &start_time, 
+            figlet_font_option
+        ), 
         &false
     );
 
     loop {
-        let sync_time = percentage_clock::get_time();
+        let sync_time = percentage_clock::get_time_with_range(&range_start_option, &range_end_option)
+            .unwrap_or_else(|e| { panic!("Error trying to get the time using the provided ranges while attempting to sync the clock\n{e}") });
+
         if sync_time != start_time {
             break;
         }
     }
 
     loop {
-        let time = percentage_clock::get_time();
+        let time = percentage_clock::get_time_with_range(&range_start_option, &range_end_option)
+            .unwrap_or_else(|e| { panic!("Error trying to print the time using the provided ranges while in the running clock\n{e}") });
         let elapsed: u128 = start.elapsed().as_millis();
 
         if last_time == time {  
@@ -117,7 +163,10 @@ fn clock(one_line: &bool, figlet_font_option: &Option<String>) {
         clock_print_time(
             one_line, 
             figlet_font_option, 
-            &pretty_time_string(&time, figlet_font_option), 
+            &pretty_time_string(
+                &time, 
+                figlet_font_option
+            ), 
             &true
         );
         start = Instant::now();
@@ -166,8 +215,10 @@ fn wipe_number_of_lines_from_terminal(number_of_lines_to_clear: usize) {
 }
 
 
-fn pretty_time_string(time_input: &String, figlet_font_option: &Option<String>) -> String
-{
+fn pretty_time_string(
+    time_input: &String, 
+    figlet_font_option: &Option<String>
+) -> String {
     let time_string: String = time_input.to_string();
     match figlet_font_option {
         None => {
