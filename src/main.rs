@@ -36,6 +36,9 @@ fn main() {
         println!("      Modify clock range so that 0 is referenced off provided time instead of midnight");
         println!("  --rend [end-time] ");
         println!("      Modify clock range so that 100 is referenced off provided time instead of midnight");
+        println!("  --context ");
+        println!("      As the program starts it will first calulate the number of seconds in one percent");
+        println!("          and print to the screen");
         return;
     }
     
@@ -76,6 +79,14 @@ fn main() {
         range_end_option = value;
     }
 
+
+    let flag_context = "--context";
+    if args.contains(flag_context) {
+        let number_of_seconds_in_one_percent = percentage_clock::percenties_in_seconds_from_range_strings(&range_start_option, &range_end_option)
+            .unwrap_or_else(|e| { panic!("Error trying to calculate the number of seconds in one percent\n{e}")});
+        println!("The number of seconds in one percent is {number_of_seconds_in_one_percent}");
+    }
+    
 
     if run_clock == false {
         let input_time = percentage_clock::get_time_with_range(&range_start_option, &range_end_option)

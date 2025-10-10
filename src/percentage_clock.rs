@@ -91,8 +91,7 @@ fn get_percent_and_percenties_with_range(
     }
     else 
     {  //recalculate range where 0 is some time after midnight yesterday and 100 is sometime before todays midnight 
-        let range_total_seconds: u32 = range_end_seconds_from_midnight - range_start_seconds_from_midnight;
-        let range_percentie_in_seconds: f64 = range_total_seconds as f64 / 100_f64;
+        let range_percentie_in_seconds: f64 =  percenties_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight);
         let time_now_seconds_total: f64 = seconds_from_midnight() as f64 - range_start_seconds_from_midnight as f64;
         
         let time_now_percenties: i8 = (time_now_seconds_total / range_percentie_in_seconds).trunc() as i8;
@@ -100,6 +99,36 @@ fn get_percent_and_percenties_with_range(
         
         return Ok((time_now_percenties, time_now_seconds));
     }
+}
+
+
+pub fn percenties_in_seconds(
+    range_start_seconds_from_midnight: u32,
+    range_end_seconds_from_midnight: u32 
+) -> f64
+{
+    if range_start_seconds_from_midnight == range_end_seconds_from_midnight {
+        return 864_f64;
+    }
+
+    let range_total_seconds: u32 = range_end_seconds_from_midnight - range_start_seconds_from_midnight;
+    let range_percentie_in_seconds: f64 = range_total_seconds as f64 / 100_f64;
+
+    range_percentie_in_seconds
+}
+
+pub fn percenties_in_seconds_from_range_strings(
+    range_start_option: &Option<String>,
+    range_end_option: &Option<String>
+) -> Result<f64, String>
+{
+    let range_start_seconds_from_midnight: u32 = seconds_from_midnight_to_time_string(range_start_option)
+        .map_err(|e| format!("Failed to parse range start time string to calculate length of a percentie \n{}", e))?;
+    
+    let range_end_seconds_from_midnight: u32  = seconds_from_midnight_to_time_string(range_end_option)
+        .map_err(|e| format!("Failed to parse range end time string to calculate length of a percentie \n{}", e))?;
+
+    Ok(percenties_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight))
 }
 
 pub fn get_time() -> String {
