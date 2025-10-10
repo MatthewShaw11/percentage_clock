@@ -55,11 +55,11 @@ fn get_percentage_of_day() -> f64
     percentage_of_day  
 }
 
-fn get_percent_and_percenties() -> (u8, u32)
+fn get_percent_and_percenties() -> (u32, u32)
 {
     let perc = get_percentage_of_day() * 100_f64;
 
-    let percentage: u8 = perc.trunc() as u8;
+    let percentage: u32 = perc.trunc() as u32;
     let percenties: u32 = seconds_from_midnight() % 864 as u32;
 
     (percentage, percenties)
@@ -68,11 +68,11 @@ fn get_percent_and_percenties() -> (u8, u32)
 fn get_percent_and_percenties_with_range(
     range_start_option: &Option<String>,
     range_end_option: &Option<String>
-) -> Result<(i8, i32), String>
+) -> Result<(i32, i32), String>
 {
     if range_start_option == &Option::None && range_end_option == &Option::None {
         let default_clock = get_percent_and_percenties();
-        return Ok((default_clock.0 as i8, default_clock.1 as i32));
+        return Ok((default_clock.0 as i32, default_clock.1 as i32));
     }
 
     let range_start_seconds_from_midnight: u32 = seconds_from_midnight_to_time_string(range_start_option)
@@ -94,7 +94,7 @@ fn get_percent_and_percenties_with_range(
         let range_percentie_in_seconds: f64 =  percenties_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight);
         let time_now_seconds_total: f64 = seconds_from_midnight() as f64 - range_start_seconds_from_midnight as f64;
         
-        let time_now_percenties: i8 = (time_now_seconds_total / range_percentie_in_seconds).trunc() as i8;
+        let time_now_percenties: i32 = (time_now_seconds_total / range_percentie_in_seconds).trunc() as i32;
         let time_now_seconds: i32 = (time_now_seconds_total % range_percentie_in_seconds).trunc() as i32;
         
         return Ok((time_now_percenties, time_now_seconds));
