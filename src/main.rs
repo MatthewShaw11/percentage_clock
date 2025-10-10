@@ -241,6 +241,7 @@ fn pretty_time_string(
                 .arg("500")
                 .arg("-f")
                 .arg(font)
+                .arg("--")
                 .arg(time_string)
                 .output()
                 .expect("Failed to execute command");
