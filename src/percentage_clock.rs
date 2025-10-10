@@ -70,6 +70,11 @@ fn get_percent_and_percenties_with_range(
     range_end_option: &Option<String>
 ) -> Result<(i8, i32), String>
 {
+    if range_start_option == &Option::None && range_end_option == &Option::None {
+        let default_clock = get_percent_and_percenties();
+        return Ok((default_clock.0 as i8, default_clock.1 as i32));
+    }
+
     let range_start_seconds_from_midnight: u32 = seconds_from_midnight_to_time_string(range_start_option)
         .map_err(|e| format!("Failed to parse range start time string \n{}", e))?;
     
