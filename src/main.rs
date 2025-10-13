@@ -34,8 +34,10 @@ fn main() {
         println!("      Outputs the time using the provided font using the figlet command.");
         println!("  --rstart [start-time] ");
         println!("      Modify clock range so that 0 is referenced off provided time instead of midnight");
+        println!("      if provide this and not rend then its a 24 hour clock but with shifted midnight");
         println!("  --rend [end-time] ");
         println!("      Modify clock range so that 100 is referenced off provided time instead of midnight");
+        println!("      if provide this and not rstart then its a 24 hour clock but with shifted midnight");
         println!("  --context ");
         println!("      As the program starts it will first calulate the number of seconds in one percent");
         println!("          and print to the screen");
@@ -82,7 +84,7 @@ fn main() {
 
     let flag_context = "--context";
     if args.contains(flag_context) {
-        let number_of_seconds_in_one_percent = percentage_clock::percenties_in_seconds_from_range_strings(&range_start_option, &range_end_option)
+        let number_of_seconds_in_one_percent = percentage_clock::one_percentie_in_seconds_from_range_strings(&range_start_option, &range_end_option)
             .unwrap_or_else(|e| { panic!("Error trying to calculate the number of seconds in one percent\n{e}")});
         println!("The number of seconds in one percent is {number_of_seconds_in_one_percent}");
     }

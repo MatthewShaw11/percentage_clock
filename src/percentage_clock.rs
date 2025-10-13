@@ -24,7 +24,7 @@ fn time_string_to_tuple(range_start_option: &String) -> Result<(u32,u32), String
     Ok((hour,minute))
 }
 
-fn seconds_from_midnight_to_time_string(time_string: &Option<String>) -> Result<u32, String>
+fn seconds_since_midnight_from_time_string(time_string: &Option<String>) -> Result<u32, String>
 {
     if time_string == &Option::None {
         return Ok(seconds_from_midnight());
@@ -66,43 +66,59 @@ fn get_percent_and_percenties() -> (u32, u32)
 }
 
 fn get_percent_and_percenties_with_range(
-    range_start_option: &Option<String>,
-    range_end_option: &Option<String>
+    input_range_start_option: &Option<String>,
+    input_range_end_option: &Option<String>
 ) -> Result<(i32, i32), String>
 {
+    let mut range_start_option: &Option<String> = &input_range_start_option.clone();
+    let mut range_end_option: &Option<String> = &input_range_end_option.clone();
+
     if range_start_option == &Option::None && range_end_option == &Option::None {
         let default_clock = get_percent_and_percenties();
         return Ok((default_clock.0 as i32, default_clock.1 as i32));
     }
+    else if range_start_option == &Option::None || range_end_option == &Option::None {
+        //make the option which is None to have the same value, were going to offset midnight point of the clock
+        if range_start_option == &Option::None {
+            range_start_option = range_end_option;
+        }
+        else {
+            range_end_option = range_start_option;
+        }
+    }
 
-    let range_start_seconds_from_midnight: u32 = seconds_from_midnight_to_time_string(range_start_option)
+    let range_start_seconds_from_midnight: u32 = seconds_since_midnight_from_time_string(range_start_option)
         .map_err(|e| format!("Failed to parse range start time string \n{}", e))?;
     
-    let range_end_seconds_from_midnight: u32  = seconds_from_midnight_to_time_string(range_end_option)
+    let range_end_seconds_from_midnight: u32  = seconds_since_midnight_from_time_string(range_end_option)
         .map_err(|e| format!("Failed to parse range end time string \n{}", e))?;
+
+    let range_one_percentie_in_seconds: f64 =  one_percentie_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight);
+    
 
     if range_start_seconds_from_midnight > range_end_seconds_from_midnight 
     {  //have to calculate this across midnight 
-        return Result::Err(format!("not implemented"));
-    }
-    else if range_end_seconds_from_midnight == range_start_seconds_from_midnight 
-    {  //shift midnight point for the day 
-        return Result::Err(format!("not implemented"));
+        let range_seconds_before_midnight: u32 = 864_00 - range_start_seconds_from_midnight;
+        let time_seconds_from_midnight: f64 = seconds_from_midnight() as f64;
+        let time_seconds_from_range_start: f64 = time_seconds_from_midnight + range_seconds_before_midnight as f64; 
+
+        let time_percenties: i32 = (time_seconds_from_range_start / range_one_percentie_in_seconds).trunc() as i32;
+        let time_seconds: i32 = (time_seconds_from_range_start % range_one_percentie_in_seconds).trunc() as i32;
+
+        return Ok((time_percenties, time_seconds));
     }
     else 
     {  //recalculate range where 0 is some time after midnight yesterday and 100 is sometime before todays midnight 
-        let range_percentie_in_seconds: f64 =  percenties_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight);
-        let time_now_seconds_total: f64 = seconds_from_midnight() as f64 - range_start_seconds_from_midnight as f64;
+        let time_seconds_from_midnight: f64 = seconds_from_midnight() as f64 - range_start_seconds_from_midnight as f64;
+        let time_percenties: i32 = (time_seconds_from_midnight / range_one_percentie_in_seconds).trunc() as i32;
+        let time_seconds: i32 = (time_seconds_from_midnight % range_one_percentie_in_seconds).trunc() as i32;
         
-        let time_now_percenties: i32 = (time_now_seconds_total / range_percentie_in_seconds).trunc() as i32;
-        let time_now_seconds: i32 = (time_now_seconds_total % range_percentie_in_seconds).trunc() as i32;
-        
-        return Ok((time_now_percenties, time_now_seconds));
+        return Ok((time_percenties, time_seconds));
     }
 }
 
 
-pub fn percenties_in_seconds(
+pub fn one_percentie_in_seconds(
     range_start_seconds_from_midnight: u32,
     range_end_seconds_from_midnight: u32 
 ) -> f64
@@ -111,24 +127,31 @@ pub fn percenties_in_seconds(
         return 864_f64;
     }
 
-    let range_total_seconds: u32 = range_end_seconds_from_midnight - range_start_seconds_from_midnight;
+    let range_total_seconds: u32; 
+    if range_end_seconds_from_midnight > range_start_seconds_from_midnight {
+        range_total_seconds = range_end_seconds_from_midnight - range_start_seconds_from_midnight;
+    }
+    else { //this time range cross over the midnight barrior (86400 = seconds in 24 hours)
+        let seconds_before_midnight: u32 = (86_400) - range_start_seconds_from_midnight;
+        range_total_seconds = seconds_before_midnight + range_end_seconds_from_midnight;
+    }
     let range_percentie_in_seconds: f64 = range_total_seconds as f64 / 100_f64;
 
     range_percentie_in_seconds
 }
 
-pub fn percenties_in_seconds_from_range_strings(
+pub fn one_percentie_in_seconds_from_range_strings(
     range_start_option: &Option<String>,
     range_end_option: &Option<String>
 ) -> Result<f64, String>
 {
-    let range_start_seconds_from_midnight: u32 = seconds_from_midnight_to_time_string(range_start_option)
+    let range_start_seconds_from_midnight: u32 = seconds_since_midnight_from_time_string(range_start_option)
         .map_err(|e| format!("Failed to parse range start time string to calculate length of a percentie \n{}", e))?;
     
-    let range_end_seconds_from_midnight: u32  = seconds_from_midnight_to_time_string(range_end_option)
+    let range_end_seconds_from_midnight: u32  = seconds_since_midnight_from_time_string(range_end_option)
         .map_err(|e| format!("Failed to parse range end time string to calculate length of a percentie \n{}", e))?;
 
-    Ok(percenties_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight))
+    Ok(one_percentie_in_seconds(range_start_seconds_from_midnight, range_end_seconds_from_midnight))
 }
 
 pub fn get_time() -> String {
